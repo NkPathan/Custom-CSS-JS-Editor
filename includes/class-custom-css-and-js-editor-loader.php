@@ -3,7 +3,7 @@
 /**
  * Register all actions and filters for the plugin
  *
- * @link       https://www.itpathsolutions.com/
+ * @link       https://github.com/NkPathan/
  * @since      1.0.0
  *
  * @package    Custom_Css_And_Js_Editor

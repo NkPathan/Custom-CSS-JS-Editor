@@ -8,17 +8,17 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              https://www.itpathsolutions.com/
+ * @link              https://github.com/NkPathan/
  * @since             1.0.0
  * @package           Custom_Css_And_Js_Editor
  *
  * @wordpress-plugin
  * Plugin Name:       Custom CSS and JS Editor
- * Plugin URI:        https://www.itpathsolutions.com/
+ * Plugin URI:        https://github.com/NkPathan/
  * Description:       A simple and intuitive interface for adding, editing, and managing your custom CSS and JS code.
  * Version:           1.0.0
- * Author:            IT Path Solutons
- * Author URI:        https://www.itpathsolutions.com//
+ * Author:            Nawazkhan Pathan
+ * Author URI:        https://github.com/NkPathan/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       custom-css-and-js-editor
