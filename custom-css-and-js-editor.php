@@ -14,7 +14,7 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Custom CSS and JS Editor
- * Plugin URI:        https://github.com/NkPathan/
+ * Plugin URI:        https://github.com/NkPathan/Custom-CSS-JS-Editor
  * Description:       A simple and intuitive interface for adding, editing, and managing your custom CSS and JS code.
  * Version:           1.0.0
  * Author:            Nawazkhan Pathan
