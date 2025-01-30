@@ -51,6 +51,8 @@ class Custom_Css_And_Js_Editor_Admin {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 
 	}
 
@@ -96,8 +98,8 @@ class Custom_Css_And_Js_Editor_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name.'-ace-editor', 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.13/ace.js', array(), $this->version, false );
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/custom-css-and-js-editor-admin.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name.'-ace-editor-cdn','https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/ace.js', array(), $this->version, true );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/custom-css-and-js-editor-admin.js', array( 'jquery' ), $this->version, true );
 
 	}
 	/**
@@ -115,12 +117,18 @@ class Custom_Css_And_Js_Editor_Admin {
             array(&$this,'customCssAndJSEditorAdmin' ));
 	}
 	public function customCssAndJSEditorAdmin(){
-		// Handle form submission
+	    // Handle form submission
 	    if ( isset( $_POST['customCodeEditorNonce'] ) && wp_verify_nonce( $_POST['customCodeEditorNonce'], 'customCodeEditorSave' ) ) {
-	        update_option( 'custom_code_editor_css', wp_unslash(sanitize_textarea_field( $_POST['custom_code_editor_css'] ) ) );
-	        update_option( 'custom_code_editor_js', wp_unslash(sanitize_textarea_field( $_POST['custom_code_editor_js'] ) ) );
+	        // Ensure input is unslashed before sanitization
+	        $custom_css = isset( $_POST['custom_code_editor_css'] ) ? wp_unslash( $_POST['custom_code_editor_css'] ) : '';
+	        $custom_js = isset( $_POST['custom_code_editor_js'] ) ? wp_unslash( $_POST['custom_code_editor_js'] ) : '';
+	        
+	        // Sanitize inputs before saving
+	        update_option( 'custom_code_editor_css', sanitize_textarea_field( $custom_css ) );
+	        update_option( 'custom_code_editor_js', sanitize_textarea_field( $custom_js ) );
 	    }
 
+	    // Retrieve options
 	    $backendLoadCSS = get_option( 'custom_code_editor_css', '' );
 	    $backendLoadJS = get_option( 'custom_code_editor_js', '' );
 
@@ -134,32 +142,33 @@ class Custom_Css_And_Js_Editor_Admin {
 	                    <th scope="row"><label for="custom_code_editor_css"><?php esc_html_e( 'Custom CSS', 'custom-css-and-js-editor' ); ?></label></th>
 	                    <td>
 	                        <div id="custom-css-editor-code-panel"><?php echo esc_textarea( $backendLoadCSS ); ?></div>
-	        				<textarea id="custom-css-editor-textarea-panel" name="custom_code_editor_css" style="display:none;"></textarea>
+	                        <textarea id="custom-css-editor-textarea-panel" name="custom_code_editor_css" style="display:none;"></textarea>
 	                    </td>
 	                </tr>
 	                <tr>
 	                    <th scope="row"><label for="custom_code_editor_js"><?php esc_html_e( 'Custom JS', 'custom-css-and-js-editor' ); ?></label></th>
 	                    <td>
 	                        <div id="custom-js-editor-code-panel"><?php echo esc_textarea( $backendLoadJS ); ?></div>
-	        				<textarea id="custom-js-editor-textarea-panel" name="custom_code_editor_js" style="display:none;"></textarea>
+	                        <textarea id="custom-js-editor-textarea-panel" name="custom_code_editor_js" style="display:none;"></textarea>
 	                    </td>
 	                </tr>
 	            </table>
 	            <?php submit_button( __( 'Save Changes', 'custom-css-and-js-editor' ) ); ?>
 	        </form>
 	    </div>
+
 	    <?php
 	}
 	function customCodeEditorAddCustomCSS() {
     $frontLoadCSS = get_option( 'custom_code_editor_css', '' );
     	if ( ! empty( $frontLoadCSS ) ) {
-        	echo '<style type="text/css">' . wp_strip_all_tags( $frontLoadCSS ) . '</style>';
+    		echo '<style type="text/css">' . esc_html( $frontLoadCSS ) . '</style>';
     	}
 	}
 	function customCodeEditorAddCustomJS() {
     	$frontLoadJS = get_option( 'custom_code_editor_js', '' );
     	if ( ! empty( $frontLoadJS ) ) {
-        	echo '<script type="text/javascript">' . wp_strip_all_tags( $frontLoadJS ) . '</script>';
+        	echo '<script type="text/javascript">' . wp_kses_post( $frontLoadJS ) . '</script>';
     	}
 	}
 }
