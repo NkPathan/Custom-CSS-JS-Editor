@@ -97,8 +97,10 @@ class Custom_Css_And_Js_Editor_Admin {
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
-
-		wp_enqueue_script( $this->plugin_name.'-ace-editor-cdn','https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/ace.js', array(), $this->version, true );
+		$aceScript = 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/ace.js';
+		if (wp_http_validate_url($aceScript)) {
+			wp_enqueue_script( $this->plugin_name.'-ace-editor-cdn',$aceScript, array(), $this->version, true );
+		}
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/custom-css-and-js-editor-admin.js', array( 'jquery' ), $this->version, true );
 
 	}
@@ -118,16 +120,24 @@ class Custom_Css_And_Js_Editor_Admin {
 	}
 	public function customCssAndJSEditorAdmin(){
 	    // Handle form submission
-	    if ( isset( $_POST['customCodeEditorNonce'] ) && wp_verify_nonce( $_POST['customCodeEditorNonce'], 'customCodeEditorSave' ) ) {
-	        // Ensure input is unslashed before sanitization
-	        $custom_css = isset( $_POST['custom_code_editor_css'] ) ? wp_unslash( $_POST['custom_code_editor_css'] ) : '';
-	        $custom_js = isset( $_POST['custom_code_editor_js'] ) ? wp_unslash( $_POST['custom_code_editor_js'] ) : '';
-	        
-	        // Sanitize inputs before saving
-	        update_option( 'custom_code_editor_css', sanitize_textarea_field( $custom_css ) );
-	        update_option( 'custom_code_editor_js', sanitize_textarea_field( $custom_js ) );
-	    }
+	   if ( isset( $_POST['customCodeEditorNonce'] ) ) { 
+		    // Unslash and sanitize nonce
+		    $customCodeEditorNonce = sanitize_text_field( wp_unslash( $_POST['customCodeEditorNonce'] ) );
 
+		    // Verify nonce
+		    if ( wp_verify_nonce( $customCodeEditorNonce, 'customCodeEditorSave' ) ) {
+		        
+		        // Check if CSS and JS fields exist, then unslash them
+		        $custom_css = isset( $_POST['custom_code_editor_css'] ) ? sanitize_textarea_field(wp_unslash( $_POST['custom_code_editor_css'] )) : '';
+		        $custom_js  = isset( $_POST['custom_code_editor_js'] ) ? sanitize_textarea_field(wp_unslash( $_POST['custom_code_editor_js'] )) : '';
+
+		        // Sanitize before saving
+		        update_option( 'custom_code_editor_css',  $custom_css );
+		        update_option( 'custom_code_editor_js', $custom_js );
+		    } else {
+		        wp_die( 'Security check failed' );
+		    }
+		}
 	    // Retrieve options
 	    $backendLoadCSS = get_option( 'custom_code_editor_css', '' );
 	    $backendLoadJS = get_option( 'custom_code_editor_js', '' );
